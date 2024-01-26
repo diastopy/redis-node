@@ -10,13 +10,15 @@ const client = createClient({
   url: REDIS_URL,
 })
 
-client.on('error', (err) => console.log('Redis Client Error', err))
+const log = (...str) => console.log(`${new Date().toUTCString()}: `, ...str)
+
+client.on('error', (err) => log('Redis Client Error', err))
 
 await client.connect()
 
 await client.set('key', 'redis connected to ' + REDIS_URL)
 const value = await client.get('key')
-console.log(value)
+log(value)
 
 const app = express()
 app.use(cors())
@@ -29,19 +31,19 @@ app.use(
 
 app.get('/', (req, res) => {
   const now = Date.now()
-  console.log('It is working, good job ', UUID, now)
+  log('It is working, good job ', UUID, now)
   res.send(`It is working, good job ${UUID} ${now}`)
 })
 
 app.get('/item', (req, res) => {
-  console.log('get item', res.query.id)
+  log('get item', req.query.id)
   const key = req.query.id
   client.get(key).then((value) => res.send(value))
 })
 
 app.post('/item', (req, res) => {
   const { id, val } = req.body
-  console.log('post item', id, val)
+  log('post item', id, val)
   client
     .set(id, val)
     .then((_) => res.send('ok'))
@@ -49,16 +51,16 @@ app.post('/item', (req, res) => {
 })
 
 app.delete('/item', (req, res) => {
-  console.log('delete item', res.body.id)
+  log('delete item', res.body.id)
   const { id } = req.body
   client.del(id).then((_) => res.send('ok'))
 })
 
 app.get('/items', (req, res) => {
-  console.log('get items')
+  log('get items')
   client.keys('*').then((keys) => res.send(JSON.stringify(keys)))
 })
 
 app.listen(port, () => {
-  console.log(`listening at http://localhost:${port} server ${UUID}`)
+  log(`listening at http://localhost:${port} server ${UUID}`)
 })
