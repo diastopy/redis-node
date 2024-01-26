@@ -20,6 +20,8 @@ await client.set('key', 'redis connected to ' + REDIS_URL)
 const value = await client.get('key')
 log(value)
 
+log(`Set "key" value to "${value}"`)
+
 const app = express()
 app.use(cors())
 app.use(express.json())
