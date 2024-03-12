@@ -2,7 +2,10 @@ import { createClient } from 'redis'
 import express from 'express'
 import cors from 'cors'
 import { v4 } from 'uuid'
+import promMid from 'express-prometheus-middleware'
+
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
+const REDIS_REPLICAS_URL = process.env.REDIS_REPLICAS_URL || REDIS_URL
 const port = process.env.PORT || 3000
 const UUID = v4()
 
@@ -10,24 +13,36 @@ const client = createClient({
   url: REDIS_URL,
 })
 
+const readClient = createClient({
+  url: REDIS_REPLICAS_URL,
+})
+
 const log = (...str) => console.log(`${new Date().toUTCString()}: `, ...str)
 
 client.on('error', (err) => log('Redis Client Error', err))
 
-await client.connect()
+await Promise.all([client.connect(), readClient.connect()])
 
 await client.set('key', 'redis connected to ' + REDIS_URL)
 const value = await client.get('key')
 log(value)
+log(`redis replicas connected to ${REDIS_REPLICAS_URL}`)
 
 log(`Set "key" value to "${value}"`)
 
-const app = express()
+export const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(
   express.urlencoded({
     extended: true,
+  })
+)
+
+app.use(
+  promMid({
+    metricsPath: '/metrics',
+    collectDefaultMetrics: true,
   })
 )
 
@@ -40,7 +55,7 @@ app.get('/', (req, res) => {
 app.get('/item', (req, res) => {
   log('get item', req.query.id)
   const key = req.query.id
-  client.get(key).then((value) => res.send(value))
+  readClient.get(key).then((value) => res.send(value))
 })
 
 app.post('/item', (req, res) => {
@@ -60,7 +75,7 @@ app.delete('/item', (req, res) => {
 
 app.get('/items', (req, res) => {
   log('get items')
-  client.keys('*').then((keys) => res.send(JSON.stringify(keys)))
+  readClient.keys('*').then((keys) => res.send(JSON.stringify(keys)))
 })
 
 app.listen(port, () => {
