@@ -1,6 +1,6 @@
 {
   "name": "redis-docker",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "main": "index.js",
   "type": "module",
   "author": "arthur.escriou <arthur.escriou@gmail.com>",
