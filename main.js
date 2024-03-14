@@ -20,6 +20,7 @@ const readClient = createClient({
 const log = (...str) => console.log(`${new Date().toUTCString()}: `, ...str)
 
 client.on('error', (err) => log('Redis Client Error', err))
+readClient.on('error', (err) => log('Redis Replicas Client Error', err))
 
 await Promise.all([client.connect(), readClient.connect()])
 
