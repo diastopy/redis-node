@@ -1,0 +1,12 @@
+```bash
+[max@maximus redis-node]$ sudo docker ps
+CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS	  NAMES
+d60bb762a0a6   redisnode     "docker-entrypoint.s…"   37 seconds ago   Up 36 seconds   3000/tcp   vigorous_blackburn
+63b8d5c62830   redis:6.2.6   "docker-entrypoint.s…"   22 minutes ago   Up 22 minutes   6379/tcp   some-redis
+```
+
+[max@maximus redis-node]$ sudo docker ps
+CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS	  NAMES
+d60bb762a0a6   redisnode     "docker-entrypoint.s…"   37 seconds ago   Up 36 seconds   3000/tcp   vigorous_blackburn
+63b8d5c62830   redis:6.2.6   "docker-entrypoint.s…"   22 minutes ago   Up 22 minutes   6379/tcp   some-redis
+
